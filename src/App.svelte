@@ -374,6 +374,7 @@
         <option value="auto">{t("languageAuto")}</option>
         <option value="en">English</option>
         <option value="pt">Português (Brasil)</option>
+        <option value="fr">Français</option>
       </select>
     </div>
 

@@ -1,5 +1,5 @@
-// Two languages: Brazilian Portuguese and English, picked by the user or, by
-// default, from the system — any `pt` locale gets Portuguese. The panel is small
+// Three languages — English, Brazilian Portuguese and French — picked by the user
+// or, by default, from the system: any `pt` or `fr` locale gets its own. The panel is small
 // enough that a dictionary is all it needs — no library, no message format.
 
 const dictionaries = {
@@ -75,21 +75,60 @@ const dictionaries = {
     languageAuto: "Sistema",
     openLogFolder: "Abrir pasta de logs",
   },
+  fr: {
+    bridgeEnabled: "Pont activé",
+    selectWindows: "Sélectionnez les fenêtres de Ganymède et de Dofus ci-dessous.",
+    sendingTo: "Envoi vers {title}",
+    grantPermission: "Accorder l'autorisation…",
+    ganymedeWindow: "Fenêtre Ganymède",
+    notSelected: "Non sélectionnée",
+    notRunning: "{name} (non ouvert)",
+    dofusWindow: "Fenêtre Dofus",
+    commands: "Commandes",
+    items: "Objets",
+    itemsHint:
+      "Le nom d'un objet cliqué dans Ganymède est collé tel quel dans Dofus — dans le champ de recherche ouvert, sans ouvrir le chat",
+    chatKey: "Touche du chat",
+    chatKeyHint:
+      "La touche qui ouvre le chat de Dofus. Zaapy l'appuie avant de coller la commande ; ce doit donc être celle définie dans les raccourcis du jeu — Entrée, sauf si vous l'avez changée.",
+    pressKey: "Appuyez sur une touche…",
+    unsupportedKey: "Touche non prise en charge",
+    unsupportedKeyHint:
+      "Zaapy peut envoyer Entrée, Échap, Tab, Espace, Retour arrière, Suppr, ainsi que n'importe quelle lettre ou chiffre. Il n'a pas de code pour les autres touches, à la fois sous Windows et macOS.",
+    escapeToCancel: "Échap pour annuler",
+    afterSending: "Après l'envoi",
+    afterSendingHint:
+      "Dofus garde le chat actif après une commande ; vos prochaines touches y atterrissent. Échap rend le clavier au jeu.",
+    pressEscape: "Appuyer sur Échap",
+    accounts: "Comptes",
+    accountsHint:
+      "Envoie /travel et /zaap à toutes les fenêtres Dofus ouvertes, votre personnage sélectionné en dernier. Les noms d'objets ne vont qu'au personnage sélectionné.",
+    multiAccount: "Multi-compte",
+    sendTo: "Envoyer à",
+    noOtherClients: "Aucune autre fenêtre Dofus n'est ouverte",
+    language: "Langue",
+    languageHint: "La langue de cette fenêtre et du menu de la zone de notification.",
+    languageAuto: "Système",
+    openLogFolder: "Ouvrir le dossier des journaux",
+  },
 } as const;
 
 export type MessageKey = keyof (typeof dictionaries)["en"];
 
-export type Language = "auto" | "en" | "pt";
+export type Language = "auto" | "en" | "pt" | "fr";
 
-const system: keyof typeof dictionaries = navigator.language.toLowerCase().startsWith("pt")
-  ? "pt"
-  : "en";
+const system: keyof typeof dictionaries = (() => {
+  const locale = navigator.language.toLowerCase();
+  if (locale.startsWith("pt")) return "pt";
+  if (locale.startsWith("fr")) return "fr";
+  return "en";
+})();
 
 // Reactive: a component that calls `t` re-renders when the language changes.
 const state = $state<{ choice: Language }>({ choice: "auto" });
 
 export function setLanguage(choice: string) {
-  state.choice = choice === "en" || choice === "pt" ? choice : "auto";
+  state.choice = choice === "en" || choice === "pt" || choice === "fr" ? choice : "auto";
 }
 
 /// A message in the chosen language, with `{name}` placeholders filled in.

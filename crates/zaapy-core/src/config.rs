@@ -39,7 +39,7 @@ pub struct Config {
     /// Which other clients a multi-account relay reaches, by character name — the
     /// part of the window title before ` - `. `None` means every open client.
     pub multi_targets: Option<Vec<String>>,
-    /// Interface language: `auto` (follow the system), `en` or `pt`.
+    /// Interface language: `auto` (follow the system), `en`, `pt` or `fr`.
     pub language: String,
     pub commands: EnabledCommands,
     pub send_sequence: Vec<SendStep>,
@@ -88,7 +88,7 @@ impl Config {
         if self.paste_sequence.is_empty() {
             self.paste_sequence = default_paste_sequence();
         }
-        if !matches!(self.language.as_str(), "auto" | "en" | "pt") {
+        if !matches!(self.language.as_str(), "auto" | "en" | "pt" | "fr") {
             self.language = "auto".to_string();
         }
         self.source_processes.retain(|name| !name.trim().is_empty());
