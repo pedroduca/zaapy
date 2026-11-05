@@ -21,6 +21,8 @@ export interface Config {
   multi_account: boolean;
   // Characters a multi-account relay reaches besides the selected one; null = all.
   multi_targets: string[] | null;
+  // Interface language: follow the system, or force one.
+  language: "auto" | "en" | "pt";
   commands: { travel: boolean; zaap: boolean; items: boolean };
   // Only its first key reaches the settings panel — see `chatOpenKey`. The rest
   // is editable in the config file if Dofus ever needs a different sequence.

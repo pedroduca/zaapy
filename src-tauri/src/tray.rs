@@ -20,6 +20,15 @@ pub struct BridgeToggle<R: TauriRuntime>(pub CheckMenuItem<R>);
 /// reason as [`BridgeToggle`].
 pub struct MultiToggle<R: TauriRuntime>(pub CheckMenuItem<R>);
 
+/// Every item whose label depends on the language, so a change in the settings
+/// can rename them in place.
+pub struct TrayLabels<R: TauriRuntime> {
+    pub settings: MenuItem<R>,
+    pub enabled: CheckMenuItem<R>,
+    pub multi: CheckMenuItem<R>,
+    pub quit: MenuItem<R>,
+}
+
 /// Kept so the updater can add its item once it knows there is something to offer.
 pub struct TrayMenu<R: TauriRuntime>(pub Menu<R>);
 
@@ -93,6 +102,12 @@ pub fn build<R: TauriRuntime>(app: &AppHandle<R>) -> tauri::Result<()> {
             other => tracing::debug!(id = other, "unhandled tray menu item"),
         });
 
+    app.manage(TrayLabels {
+        settings: settings.clone(),
+        enabled: enabled.clone(),
+        multi: multi.clone(),
+        quit: quit.clone(),
+    });
     app.manage(BridgeToggle(enabled));
     app.manage(MultiToggle(multi));
     app.manage(TrayMenu(menu));

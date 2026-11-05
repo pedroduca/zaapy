@@ -17,7 +17,7 @@ use zaapy_core::command::Rejection;
 use zaapy_core::platform::WindowRef;
 use zaapy_core::{Bridge, Config, Verb, TICK_INTERVAL_MS};
 
-use crate::tray::{BridgeToggle, MultiToggle};
+use crate::tray::{BridgeToggle, MultiToggle, TrayLabels};
 
 /// Broadcast to the settings page whenever the configuration changes, whoever
 /// changed it.
@@ -48,6 +48,7 @@ pub struct Runtime {
 impl Runtime {
     pub fn new(config_path: PathBuf, log_directory: PathBuf) -> Self {
         let config = read_config(&config_path);
+        crate::i18n::set_language(&config.language);
         let bridge = Bridge::new(zaapy_platform::ports(), config.clone());
 
         Self {
@@ -114,7 +115,15 @@ pub fn apply_config<R: TauriRuntime>(app: &AppHandle<R>, config: Config) -> Resu
     let handle = app.clone();
     let checked = saved.enabled;
     let multi = saved.multi_account;
+    crate::i18n::set_language(&saved.language);
     let _ = app.run_on_main_thread(move || {
+        // The tray menu follows the language setting without a restart.
+        if let Some(labels) = handle.try_state::<TrayLabels<R>>() {
+            let _ = labels.settings.set_text(crate::i18n::settings());
+            let _ = labels.enabled.set_text(crate::i18n::bridge_enabled());
+            let _ = labels.multi.set_text(crate::i18n::multi_account());
+            let _ = labels.quit.set_text(crate::i18n::quit());
+        }
         if let Some(toggle) = handle.try_state::<BridgeToggle<R>>() {
             let _ = toggle.0.set_checked(checked);
         }

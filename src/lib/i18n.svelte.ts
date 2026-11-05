@@ -1,6 +1,6 @@
-// Two languages, picked from the system: Brazilian Portuguese for any `pt`
-// locale, English for everything else. The panel is small enough that a
-// dictionary is all it needs — no library, no runtime message format.
+// Two languages: Brazilian Portuguese and English, picked by the user or, by
+// default, from the system — any `pt` locale gets Portuguese. The panel is small
+// enough that a dictionary is all it needs — no library, no message format.
 
 const dictionaries = {
   en: {
@@ -32,6 +32,11 @@ const dictionaries = {
     accountsHint:
       "Send /travel and /zaap to every open Dofus window, your selected character last. Item names still go to the selected character only.",
     multiAccount: "Multi-account",
+    sendTo: "Send to",
+    noOtherClients: "No other Dofus window is open",
+    language: "Language",
+    languageHint: "The language of this window and of the tray menu.",
+    languageAuto: "System",
     openLogFolder: "Open log folder",
   },
   pt: {
@@ -63,17 +68,32 @@ const dictionaries = {
     accountsHint:
       "Envia /travel e /zaap para todas as janelas do Dofus abertas, com o personagem selecionado por último. Nomes de itens vão só para o personagem selecionado.",
     multiAccount: "Multi-conta",
+    sendTo: "Enviar para",
+    noOtherClients: "Nenhuma outra janela do Dofus está aberta",
+    language: "Idioma",
+    languageHint: "O idioma desta janela e do menu da bandeja.",
+    languageAuto: "Sistema",
     openLogFolder: "Abrir pasta de logs",
   },
 } as const;
 
 export type MessageKey = keyof (typeof dictionaries)["en"];
 
-const language: keyof typeof dictionaries = navigator.language.toLowerCase().startsWith("pt")
+export type Language = "auto" | "en" | "pt";
+
+const system: keyof typeof dictionaries = navigator.language.toLowerCase().startsWith("pt")
   ? "pt"
   : "en";
 
-/// A message in the system language, with `{name}` placeholders filled in.
+// Reactive: a component that calls `t` re-renders when the language changes.
+const state = $state<{ choice: Language }>({ choice: "auto" });
+
+export function setLanguage(choice: string) {
+  state.choice = choice === "en" || choice === "pt" ? choice : "auto";
+}
+
+/// A message in the chosen language, with `{name}` placeholders filled in.
 export function t(key: MessageKey, values: Record<string, string> = {}): string {
+  const language = state.choice === "auto" ? system : state.choice;
   return dictionaries[language][key].replace(/\{(\w+)\}/g, (_, name) => values[name] ?? "");
 }

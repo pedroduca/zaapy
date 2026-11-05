@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
 
   import * as api from "./lib/api";
-  import { t } from "./lib/i18n";
+  import { setLanguage, t } from "./lib/i18n.svelte";
   import { chatOpenKey, closesChat, withChatOpenKey, withCloseChat } from "./lib/types";
   import type { Config, Status, WindowRef } from "./lib/types";
 
@@ -55,6 +55,9 @@
     const next = on ? [...new Set([...current, name])] : current.filter((n) => n !== name);
     void save({ ...config, multi_targets: next });
   }
+
+  // The panel follows the saved language the moment it changes, whoever changed it.
+  $effect(() => setLanguage(config?.language ?? "auto"));
 
   const chatKeyLabel = $derived(keyLabel(config ? chatOpenKey(config) : null));
 
@@ -342,7 +345,7 @@
     </div>
     {#if config.multi_account}
       <div class="row">
-        <span class="label">Send to</span>
+        <span class="label">{t("sendTo")}</span>
         <div class="clients">
           {#each otherClients as name (name)}
             <label class="check">
@@ -354,11 +357,25 @@
               {name}
             </label>
           {:else}
-            <span class="hint">No other Dofus window is open</span>
+            <span class="hint">{t("noOtherClients")}</span>
           {/each}
         </div>
       </div>
     {/if}
+
+    <div class="row">
+      <span class="label" title={t("languageHint")}>
+        {t("language")} <span class="info" aria-hidden="true">i</span>
+      </span>
+      <select
+        value={config.language}
+        onchange={(e) => save({ ...config!, language: e.currentTarget.value as Config["language"] })}
+      >
+        <option value="auto">{t("languageAuto")}</option>
+        <option value="en">English</option>
+        <option value="pt">Português (Brasil)</option>
+      </select>
+    </div>
 
     <hr />
 

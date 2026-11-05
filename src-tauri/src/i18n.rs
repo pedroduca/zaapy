@@ -1,16 +1,42 @@
 //! The few strings Rust shows the user: the tray menu and notifications. The
 //! settings page has its own dictionary (`src/lib/i18n.ts`); both follow the
-//! system language — Brazilian Portuguese for any `pt` locale, English otherwise.
+//! language setting — by default the system's: Brazilian Portuguese for any `pt`
+//! locale, English otherwise.
 
+use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::OnceLock;
 
 use zaapy_core::bridge::BridgeError;
 
+const AUTO: u8 = 0;
+const ENGLISH: u8 = 1;
+const PORTUGUESE: u8 = 2;
+
+/// The language the user picked in the settings; `AUTO` follows the system.
+static CHOICE: AtomicU8 = AtomicU8::new(AUTO);
+
+/// Apply the `language` setting (`auto`, `en` or `pt`).
+pub fn set_language(code: &str) {
+    let choice = match code {
+        "en" => ENGLISH,
+        "pt" => PORTUGUESE,
+        _ => AUTO,
+    };
+    CHOICE.store(choice, Ordering::Relaxed);
+}
+
 fn portuguese() -> bool {
-    static PT: OnceLock<bool> = OnceLock::new();
-    *PT.get_or_init(|| {
-        sys_locale::get_locale().is_some_and(|locale| locale.to_lowercase().starts_with("pt"))
-    })
+    match CHOICE.load(Ordering::Relaxed) {
+        ENGLISH => false,
+        PORTUGUESE => true,
+        _ => {
+            static SYSTEM_PT: OnceLock<bool> = OnceLock::new();
+            *SYSTEM_PT.get_or_init(|| {
+                sys_locale::get_locale()
+                    .is_some_and(|locale| locale.to_lowercase().starts_with("pt"))
+            })
+        }
+    }
 }
 
 fn pick(en: &str, pt: &str) -> String {

@@ -39,6 +39,8 @@ pub struct Config {
     /// Which other clients a multi-account relay reaches, by character name — the
     /// part of the window title before ` - `. `None` means every open client.
     pub multi_targets: Option<Vec<String>>,
+    /// Interface language: `auto` (follow the system), `en` or `pt`.
+    pub language: String,
     pub commands: EnabledCommands,
     pub send_sequence: Vec<SendStep>,
     /// What an item name gets instead of `send_sequence`: a paste into whatever
@@ -60,6 +62,7 @@ impl Default for Config {
             target: TargetSelector::default(),
             multi_account: false,
             multi_targets: None,
+            language: "auto".to_string(),
             commands: EnabledCommands::default(),
             send_sequence: default_send_sequence(),
             paste_sequence: default_paste_sequence(),
@@ -84,6 +87,9 @@ impl Config {
         }
         if self.paste_sequence.is_empty() {
             self.paste_sequence = default_paste_sequence();
+        }
+        if !matches!(self.language.as_str(), "auto" | "en" | "pt") {
+            self.language = "auto".to_string();
         }
         self.source_processes.retain(|name| !name.trim().is_empty());
         // Version 1 saved `/zaap` off while it was not in the game yet, behind a
