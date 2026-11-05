@@ -29,7 +29,7 @@ pub fn check<R: TauriRuntime>(app: &AppHandle<R>) {
 
 fn offer<R: TauriRuntime>(app: &AppHandle<R>, version: &str) {
     tracing::info!(version, "update available");
-    let label = format!("Update to {version}…");
+    let label = crate::i18n::update_to(version);
     let added = MenuItem::with_id(app, MENU_ID, label, true, None::<&str>)
         .and_then(|item| app.state::<TrayMenu<R>>().0.insert(&item, 0));
     if let Err(error) = added {
@@ -38,7 +38,7 @@ fn offer<R: TauriRuntime>(app: &AppHandle<R>, version: &str) {
     }
     notify(
         app,
-        &format!("Zaapy {version} is available. Install it from the tray menu."),
+        &crate::i18n::update_available(version),
     );
 }
 
@@ -70,7 +70,7 @@ pub fn install<R: TauriRuntime>(app: &AppHandle<R>) {
             Ok(false) => tracing::info!("no update left to install"),
             Err(error) => {
                 tracing::error!(%error, "update failed");
-                notify(&app, &format!("The update failed: {error}"));
+                notify(&app, &crate::i18n::update_failed(&error));
                 if let Some(item) = item {
                     let _ = item.set_enabled(true);
                 }

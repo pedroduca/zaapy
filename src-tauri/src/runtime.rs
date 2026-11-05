@@ -84,7 +84,7 @@ impl Runtime {
         let resolution = bridge::resolve_target(&config.target, zaapy_platform::list_windows());
         let (target, target_error) = match resolution {
             Ok(window) => (Some(window), None),
-            Err(error) => (None, Some(error.to_string())),
+            Err(error) => (None, Some(crate::i18n::bridge_error(&error))),
         };
 
         Status {
@@ -172,7 +172,7 @@ fn handle(app: &AppHandle, report: TickReport) {
             .notification()
             .builder()
             .title("Zaapy")
-            .body(error.to_string())
+            .body(crate::i18n::bridge_error(error))
             .show();
     }
 }

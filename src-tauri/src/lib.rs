@@ -4,6 +4,7 @@
 //! operating system (see [`platform`]), the tray, the settings window and the
 //! loop that ties them together.
 
+mod i18n;
 mod ipc;
 mod logging;
 mod runtime;

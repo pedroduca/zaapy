@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
 
   import * as api from "./lib/api";
+  import { t } from "./lib/i18n";
   import { chatOpenKey, closesChat, withChatOpenKey, withCloseChat } from "./lib/types";
   import type { Config, Status, WindowRef } from "./lib/types";
 
@@ -180,13 +181,13 @@
         checked={config.enabled}
         onchange={(event) => save({ ...config!, enabled: event.currentTarget.checked })}
       />
-      Bridge enabled
+      {t("bridgeEnabled")}
     </label>
 
     {#if !status.configured}
-      <p class="note">Select the Ganymède and Dofus windows below.</p>
+      <p class="note">{t("selectWindows")}</p>
     {:else if status.target}
-      <p class="note ok">Sending to {status.target.title}</p>
+      <p class="note ok">{t("sendingTo", { title: status.target.title })}</p>
     {:else}
       <p class="note warn">{status.targetError}</p>
     {/if}
@@ -195,17 +196,17 @@
       <p class="note warn">{status.host.privilegeWarning}</p>
     {/if}
     {#if status.host.canRequestPermission}
-      <button onclick={() => api.requestPermissions()}>Grant permission…</button>
+      <button onclick={() => api.requestPermissions()}>{t("grantPermission")}</button>
     {/if}
 
     <hr />
 
     <div class="row">
-      <span class="label">Ganymède window</span>
+      <span class="label">{t("ganymedeWindow")}</span>
       <select value={selectedSource} onchange={(e) => pickSource(e.currentTarget.value)}>
-        <option value="">Not selected</option>
+        <option value="">{t("notSelected")}</option>
         {#if selectedSource && !sourceIsRunning}
-          <option value={selectedSource}>{selectedSource} (not running)</option>
+          <option value={selectedSource}>{t("notRunning", { name: selectedSource })}</option>
         {/if}
         {#each sourceOptions as window (window.process)}
           <option value={window.process}>{window.process}</option>
@@ -214,14 +215,14 @@
     </div>
 
     <div class="row">
-      <span class="label">Dofus window</span>
+      <span class="label">{t("dofusWindow")}</span>
       <select
         value={status.target ? String(status.target.handle) : "current"}
         onchange={(e) => pickTarget(e.currentTarget.value)}
       >
         {#if !status.target}
           <option value="current">
-            {targetLabel ? `${targetLabel} (not running)` : "Not selected"}
+            {targetLabel ? t("notRunning", { name: targetLabel }) : t("notSelected")}
           </option>
         {/if}
         {#each windows as window (window.handle)}
@@ -233,7 +234,7 @@
     <hr />
 
     <div class="row">
-      <span class="label">Commands</span>
+      <span class="label">{t("commands")}</span>
       <label class="check">
         <input
           type="checkbox"
@@ -258,7 +259,7 @@
         />
         /zaap
       </label>
-      <label class="check" title="An item name clicked in Ganymède is pasted into Dofus as is — into the search field you have open, without opening the chat">
+      <label class="check" title={t("itemsHint")}>
         <input
           type="checkbox"
           checked={config.commands.items}
@@ -268,7 +269,7 @@
               commands: { ...config!.commands, items: event.currentTarget.checked },
             })}
         />
-        Items
+        {t("items")}
       </label>
     </div>
 
@@ -280,12 +281,12 @@
     <div class="row">
       <span
         class="label"
-        title="The key that opens the Dofus chat. Zaapy presses it before pasting the command, so it has to be the one bound in the game's controls — Enter unless you moved it."
+        title={t("chatKeyHint")}
       >
-        Dofus chat key <span class="info" aria-hidden="true">i</span>
+        {t("chatKey")} <span class="info" aria-hidden="true">i</span>
       </span>
       <button onclick={() => (capturing = true)} onblur={stopCapture}>
-        {capturing ? "Press a key…" : chatKeyLabel}
+        {capturing ? t("pressKey") : chatKeyLabel}
       </button>
       <!-- One hint at a time: a refusal answers the press the user just made,
            which matters more than the way out they have not asked for yet.
@@ -293,11 +294,11 @@
            platform's base size — the row is 130px of label plus a button wide
            inside a 420px window, and what is left is not much. -->
       {#if captureRefused}
-        <span class="hint" title="Zaapy can send Enter, Escape, Tab, Space, Backspace, Delete, and any letter or digit. It has no key code for the rest on both Windows and macOS.">
-          Unsupported key
+        <span class="hint" title={t("unsupportedKeyHint")}>
+          {t("unsupportedKey")}
         </span>
       {:else if capturing}
-        <span class="hint">Escape to cancel</span>
+        <span class="hint">{t("escapeToCancel")}</span>
       {/if}
     </div>
 
@@ -307,9 +308,9 @@
     <div class="row">
       <span
         class="label"
-        title="Dofus keeps the chat focused after a command, so your next keystrokes land in it. Pressing Escape hands the keyboard back to the game."
+        title={t("afterSendingHint")}
       >
-        After sending <span class="info" aria-hidden="true">i</span>
+        {t("afterSending")} <span class="info" aria-hidden="true">i</span>
       </span>
       <label class="check">
         <input
@@ -317,7 +318,7 @@
           checked={closesChat(config)}
           onchange={(event) => save(withCloseChat(config!, event.currentTarget.checked))}
         />
-        Press Escape
+        {t("pressEscape")}
       </label>
     </div>
 
@@ -326,9 +327,9 @@
     <div class="row">
       <span
         class="label"
-        title="Send /travel and /zaap to every open Dofus window, your selected character last. Item names still go to the selected character only."
+        title={t("accountsHint")}
       >
-        Accounts <span class="info" aria-hidden="true">i</span>
+        {t("accounts")} <span class="info" aria-hidden="true">i</span>
       </span>
       <label class="check">
         <input
@@ -336,7 +337,7 @@
           checked={config.multi_account}
           onchange={(event) => save({ ...config!, multi_account: event.currentTarget.checked })}
         />
-        Multi-account
+        {t("multiAccount")}
       </label>
     </div>
     {#if config.multi_account}
@@ -362,7 +363,7 @@
     <hr />
 
     <div class="row end">
-      <button onclick={() => api.openLogFolder()}>Open log folder</button>
+      <button onclick={() => api.openLogFolder()}>{t("openLogFolder")}</button>
     </div>
   {/if}
 </main>

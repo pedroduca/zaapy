@@ -7,6 +7,7 @@ use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{AppHandle, Manager, Runtime as TauriRuntime};
 
+use crate::i18n;
 use crate::runtime::{self, Runtime};
 use crate::updater;
 
@@ -25,11 +26,11 @@ pub struct TrayMenu<R: TauriRuntime>(pub Menu<R>);
 pub fn build<R: TauriRuntime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let enabled_now = app.state::<Runtime>().config().enabled;
 
-    let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
+    let settings = MenuItem::with_id(app, "settings", i18n::settings(), true, None::<&str>)?;
     let enabled = CheckMenuItem::with_id(
         app,
         "enabled",
-        "Bridge enabled",
+        i18n::bridge_enabled(),
         true,
         enabled_now,
         None::<&str>,
@@ -37,12 +38,12 @@ pub fn build<R: TauriRuntime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let multi = CheckMenuItem::with_id(
         app,
         "multi",
-        "Multi-account",
+        i18n::multi_account(),
         true,
         app.state::<Runtime>().config().multi_account,
         None::<&str>,
     )?;
-    let quit = MenuItem::with_id(app, "quit", "Quit Zaapy", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", i18n::quit(), true, None::<&str>)?;
     let menu = Menu::with_items(
         app,
         &[
